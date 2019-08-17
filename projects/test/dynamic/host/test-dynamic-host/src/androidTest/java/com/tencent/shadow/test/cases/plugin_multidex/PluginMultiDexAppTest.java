@@ -16,6 +16,33 @@
  *
  */
 
-package com.tencent.shadow.core.loader
+package com.tencent.shadow.test.cases.plugin_multidex;
 
-internal inline fun ImplementLater(): Nothing = throw NotImplementedError("需要用的时候再实现")
+import android.content.Intent;
+
+import androidx.test.core.app.ApplicationProvider;
+
+import com.tencent.shadow.test.PluginTest;
+
+import org.junit.Test;
+
+public abstract class PluginMultiDexAppTest extends PluginTest {
+
+    abstract protected String getActivityName();
+
+    @Override
+    protected Intent getLaunchIntent() {
+        Intent pluginIntent = new Intent();
+        String packageName = ApplicationProvider.getApplicationContext().getPackageName();
+        pluginIntent.setClassName(
+                packageName,
+                getActivityName()
+        );
+        return pluginIntent;
+    }
+
+    @Test
+    public void testSuccessLaunch() {
+        //assert no crash
+    }
+}
