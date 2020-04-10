@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.transition.Transition;
 import android.util.AttributeSet;
@@ -75,7 +76,7 @@ public class ContainerFragment extends Fragment implements IContainerFragment {
         Constructor<?> constructor = constructorMap.get(pluginFragmentClassName);
         if (constructor == null) {
             PluginContainerActivity containerActivity = (PluginContainerActivity) context;
-            PluginActivity pluginActivity = (PluginActivity) containerActivity.getPluginActivity();
+            PluginActivity pluginActivity = PluginActivity.get(containerActivity);
             ClassLoader pluginClassLoader = pluginActivity.getClassLoader();
             try {
                 Class<?> aClass = pluginClassLoader.loadClass(pluginFragmentClassName);
@@ -147,7 +148,7 @@ public class ContainerFragment extends Fragment implements IContainerFragment {
         super.onAttach(context);
 
         if (context instanceof PluginContainerActivity) {
-            Context pluginActivity = (Context) (((PluginContainerActivity) context).getPluginActivity());
+            Context pluginActivity = PluginActivity.get((PluginContainerActivity) context);
             mPluginFragment.onAttach(pluginActivity);
         }
     }
@@ -158,7 +159,7 @@ public class ContainerFragment extends Fragment implements IContainerFragment {
         initPluginFragment(activity);
         super.onAttach(activity);
         if (activity instanceof PluginContainerActivity) {
-            ShadowActivity pluginActivity = (ShadowActivity) (((PluginContainerActivity) activity).getPluginActivity());
+            ShadowActivity pluginActivity = (ShadowActivity) (PluginActivity.get((PluginContainerActivity) activity));
             mPluginFragment.onAttach(pluginActivity);
         }
     }
@@ -560,7 +561,9 @@ public class ContainerFragment extends Fragment implements IContainerFragment {
 
     @Override
     public void superSetUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            super.setUserVisibleHint(isVisibleToUser);
+        }
     }
 
     @Override
