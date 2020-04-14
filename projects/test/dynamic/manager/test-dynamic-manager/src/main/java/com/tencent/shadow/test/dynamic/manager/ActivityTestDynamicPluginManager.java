@@ -16,7 +16,7 @@
  *
  */
 
-package com.tencent.shadow.sample.manager;
+package com.tencent.shadow.test.dynamic.manager;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,19 +26,20 @@ import android.view.View;
 
 import com.tencent.shadow.core.manager.installplugin.InstalledPlugin;
 import com.tencent.shadow.dynamic.host.EnterCallback;
-import com.tencent.shadow.sample.constant.Constant;
+import com.tencent.shadow.test.lib.constant.Constant;
+import com.tencent.shadow.test.lib.test_manager.TestManager;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-public class SamplePluginManager extends FastPluginManager {
+public class ActivityTestDynamicPluginManager extends FastPluginManager {
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private Context mCurrentContext;
 
-    public SamplePluginManager(Context context) {
+    public ActivityTestDynamicPluginManager(Context context) {
         super(context);
         mCurrentContext = context;
     }
@@ -63,15 +64,8 @@ public class SamplePluginManager extends FastPluginManager {
      * @return 宿主中注册的PluginProcessService实现的类名
      */
     @Override
-    protected String getPluginProcessServiceName(String partKey) {
-        if ("sample-plugin-app".equals(partKey)) {
-            return "com.tencent.shadow.sample.host.PluginProcessPPS";
-        } else if ("sample-plugin-app2".equals(partKey)) {
-            return "com.tencent.shadow.sample.host.Plugin2ProcessPPS";//在这里支持多个插件
-        } else {
-            //如果有默认PPS，可用return代替throw
-            throw new IllegalArgumentException("unexpected plugin load request: " + partKey);
-        }
+    protected String getPluginProcessServiceName() {
+        return "com.tencent.shadow.test.dynamic.host.PluginProcessPPS";
     }
 
     @Override
@@ -104,6 +98,9 @@ public class SamplePluginManager extends FastPluginManager {
             public void run() {
                 try {
                     InstalledPlugin installedPlugin = installPlugin(pluginZipPath, null, true);
+
+                    TestManager.uuid = installedPlugin.UUID;
+
                     Intent pluginIntent = new Intent();
                     pluginIntent.setClassName(
                             context.getPackageName(),
@@ -113,7 +110,7 @@ public class SamplePluginManager extends FastPluginManager {
                         pluginIntent.replaceExtras(extras);
                     }
 
-                    startPluginActivity(installedPlugin, partKey, pluginIntent);
+                    startPluginActivity(context, installedPlugin, partKey, pluginIntent);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

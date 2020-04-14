@@ -16,16 +16,26 @@
  *
  */
 
-package com.tencent.shadow.sample.constant;
+package com.tencent.shadow.test.cases.plugin_service;
 
-final public class Constant {
-    public static final String KEY_PLUGIN_ZIP_PATH = "pluginZipPath";
-    public static final String KEY_ACTIVITY_CLASSNAME = "KEY_ACTIVITY_CLASSNAME";
-    public static final String KEY_EXTRAS = "KEY_EXTRAS";
-    public static final String KEY_PLUGIN_PART_KEY = "KEY_PLUGIN_PART_KEY";
-    public static final String PART_KEY_PLUGIN_MAIN_APP = "sample-plugin-app";
-    public static final String PART_KEY_PLUGIN_ANOTHER_APP = "sample-plugin-app2";
+import android.app.Activity;
 
-    public static final int FROM_ID_NOOP = 1000;
-    public static final int FROM_ID_START_ACTIVITY = 1002;
+import com.tencent.shadow.test.PluginTest;
+import com.tencent.shadow.test.dynamic.host.BindPluginServiceActivity;
+import com.tencent.shadow.test.lib.constant.Constant;
+
+public abstract class PluginServiceAppTest extends PluginTest {
+
+    /**
+     * 要启动的插件的PartKey
+     */
+    @Override
+    protected String getPartKey() {
+        return Constant.PART_KEY_PLUGIN_SERVICE_FOR_HOST;
+    }
+
+    @Override
+    protected Class<? extends Activity> getJumpActivityClass() {
+        return BindPluginServiceActivity.class;
+    }
 }
