@@ -1,13 +1,12 @@
-name: Android CI
+name: Publish release
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  release:
+    types:
+      - created
 
 jobs:
-  test:
+  build-and-test:
     runs-on: macos-latest
     steps:
       - name: checkout
@@ -28,4 +27,16 @@ jobs:
           arch: x86_64
           profile: pixel_xl
           script: ./gradlew androidTestSdk
-
+  publish:
+    needs: build-and-test
+    runs-on: macos-latest
+    env:
+      PUBLISH_RELEASE: true
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: publish
+        run: ./gradlew publish
