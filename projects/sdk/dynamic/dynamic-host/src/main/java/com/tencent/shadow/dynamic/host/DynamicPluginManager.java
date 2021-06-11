@@ -20,17 +20,20 @@ package com.tencent.shadow.dynamic.host;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.tencent.shadow.core.common.Logger;
 import com.tencent.shadow.core.common.LoggerFactory;
 
 import java.io.File;
 
+import static com.tencent.shadow.core.utils.Md5.md5File;
+
 public final class DynamicPluginManager implements PluginManager {
 
     final private PluginManagerUpdater mUpdater;
     private PluginManagerImpl mManagerImpl;
-    private long mLastModified;
+    private String mCurrentImplMd5;
     private static final Logger mLogger = LoggerFactory.getLogger(DynamicPluginManager.class);
 
     public DynamicPluginManager(PluginManagerUpdater updater) {
@@ -63,11 +66,11 @@ public final class DynamicPluginManager implements PluginManager {
 
     private void updateManagerImpl(Context context) {
         File latestManagerImplApk = mUpdater.getLatest();
-        long lastModified = latestManagerImplApk.lastModified();
+        String md5 = md5File(latestManagerImplApk);
         if (mLogger.isInfoEnabled()) {
-            mLogger.info("mLastModified != lastModified : " + (mLastModified != lastModified));
+            mLogger.info("TextUtils.equals(mCurrentImplMd5, md5) : " + (TextUtils.equals(mCurrentImplMd5, md5)));
         }
-        if (mLastModified != lastModified) {
+        if (!TextUtils.equals(mCurrentImplMd5, md5)) {
             ManagerImplLoader implLoader = new ManagerImplLoader(context, latestManagerImplApk);
             PluginManagerImpl newImpl = implLoader.load();
             Bundle state;
@@ -80,11 +83,12 @@ public final class DynamicPluginManager implements PluginManager {
             }
             newImpl.onCreate(state);
             mManagerImpl = newImpl;
-            mLastModified = lastModified;
+            mCurrentImplMd5 = md5;
         }
     }
 
     public PluginManager getManagerImpl() {
         return mManagerImpl;
     }
+
 }
